@@ -1,6 +1,6 @@
 import './App.css';
 import React from 'react';
-import PokemonList from './components/Pokemon/List';
+import PokemonList from './components/List';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import 'bulma/css/bulma.min.css';
 
