@@ -24,10 +24,10 @@ const initialState = {
 
 const useStyles = makeStyles({
     root: {
-        maxWidth: 345,
+        minWidth: 300,
     },
     media: {
-        height: 140,
+        height: 250,
     },
 });
 
@@ -124,7 +124,7 @@ const PokemonList = () => {
                                     className={classes.media}
                                     image={
                                         modalPokemon.sprites
-                                            ? modalPokemon.sprites.front_default
+                                            ? modalPokemon.sprites.other.dream_world.front_default
                                             : "/teste"
                                     }
                                     title={modalPokemon.name}
@@ -133,10 +133,18 @@ const PokemonList = () => {
                                     <Typography gutterBottom variant="h5" component="h2" className="capitalize" >
                                         {`#${modalPokemon.id} - ${modalPokemon.name}`}
                                     </Typography>
-                                    <Typography variant="body2" color="textSecondary" component="p">
-                                        Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                                        across all continents except Antarctica
-                                    </Typography>
+                                    <ul>
+                                        <li>
+                                            <Typography variant="body2" color="textSecondary" component="p">
+                                                Peso: {(modalPokemon.weight * 0.453592).toFixed(1)} kg
+                                            </Typography>
+                                        </li>
+                                        <li>
+                                            <Typography variant="body2" color="textSecondary" component="p">
+                                                Altura: {(modalPokemon.height * 0.3048).toFixed(2)} metros
+                                            </Typography>
+                                        </li>
+                                    </ul>
                                 </CardContent>
                             </CardActionArea>
                             <CardActions>
