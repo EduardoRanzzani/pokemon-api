@@ -31,17 +31,20 @@ const useStyles = makeStyles({
     },
 });
 
+const modalData = {
+    pokemonData: {}
+};
+
 const POKEMONS_PER_PAGE = 10;
 
 const PokemonList = () => {
-    const [state, setState] = useState(initialState);
+    const [modalPokemon, setModalPokemon] = useState(modalData);
     const [pokemons, setPokemons] = useState(pokemonState);
+    const [state, setState] = useState(initialState);
     const [page, setPage] = useState(0);
-
     const classes = useStyles();
 
     const apiUrl = `https://pokeapi.co/api/v2/pokemon?offset=${page}&limit=${POKEMONS_PER_PAGE}`;
-
 
     useEffect(() => {
         axios.get(apiUrl).then(response => {
@@ -88,7 +91,10 @@ const PokemonList = () => {
                                     <td className="capitalize" >{pokemon.name}</td>
                                     <td>{pokemon.url}</td>
                                     <td>
-                                        <IconButton color="primary" size="small" onClick={e => setState({ showModal: !state.showModal, selectedPokemon: pokemon })} >
+                                        <IconButton color="primary" size="small" onClick={e => {
+                                            setState({ showModal: !state.showModal, selectedPokemon: pokemon });
+                                            axios.get(pokemon.url).then(response => setModalPokemon(response.data));
+                                        }} >
                                             <SearchTwoToneIcon />
                                         </IconButton>
                                         <IconButton color="primary" disabled size="small">
@@ -116,12 +122,16 @@ const PokemonList = () => {
                             <CardActionArea>
                                 <CardMedia
                                     className={classes.media}
-                                    image="/teste"
-                                    title={state.selectedPokemon.name}
+                                    image={
+                                        modalPokemon.sprites
+                                            ? modalPokemon.sprites.front_default
+                                            : "/teste"
+                                    }
+                                    title={modalPokemon.name}
                                 />
                                 <CardContent>
                                     <Typography gutterBottom variant="h5" component="h2" className="capitalize" >
-                                        {`#${state.selectedPokemon.id} - ${state.selectedPokemon.name}`}
+                                        {`#${modalPokemon.id} - ${modalPokemon.name}`}
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary" component="p">
                                         Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
