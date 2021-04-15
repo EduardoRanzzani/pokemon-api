@@ -1,29 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { faEdit, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, IconButton, makeStyles, Typography } from '@material-ui/core';
 
-const initialState = {
+import SearchTwoToneIcon from '@material-ui/icons/SearchTwoTone';
+import EditTwoToneIcon from '@material-ui/icons/EditTwoTone';
+import DeleteTwoToneIcon from '@material-ui/icons/DeleteTwoTone';
+import Modal from '../Modal';
+
+import "./index.css";
+
+const pokemonState = {
     count: 0,
     next: '',
     previous: '',
-    results: []
-}
+    results: [],
+};
 
-const POKEMONS_PER_PAGE = 20;
+const initialState = {
+    showModal: false,
+    selectedPokemon: {}
+};
 
-function PokemonList() {
-    const [pokemons, setpokemons] = useState(initialState);
+const useStyles = makeStyles({
+    root: {
+        maxWidth: 345,
+    },
+    media: {
+        height: 140,
+    },
+});
+
+const POKEMONS_PER_PAGE = 10;
+
+const PokemonList = () => {
+    const [state, setState] = useState(initialState);
+    const [pokemons, setPokemons] = useState(pokemonState);
     const [page, setPage] = useState(0);
+
+    const classes = useStyles();
+
     const apiUrl = `https://pokeapi.co/api/v2/pokemon?offset=${page}&limit=${POKEMONS_PER_PAGE}`;
 
 
     useEffect(() => {
         axios.get(apiUrl).then(response => {
-            setpokemons(response.data);
-        });
-    });
+            setPokemons(response.data);
+        }, console.error);
+    }, [apiUrl]);
 
     function nextPage() {
         if (page === 0) {
@@ -34,7 +58,6 @@ function PokemonList() {
     }
 
     function previousPage() {
-        console.log(pokemons.previous)
         if (pokemons.previous) {
             setPage(page - POKEMONS_PER_PAGE);
         }
@@ -44,16 +67,16 @@ function PokemonList() {
         <div>
             <div className="box" >
                 <h1 className="title" >Exibir Pokémon</h1>
-            </div>
 
-            <div className="box">
+                <hr />
+
                 <table className="table is-striped is-fullwidth is-hoverable is-narrow">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Nome</th>
                             <th scope="col">URL</th>
-                            <th scope="col">Opções</th>
+                            <th scope="col" style={{ width: '110px' }}>Opções</th>
                         </tr>
                     </thead>
 
@@ -62,12 +85,18 @@ function PokemonList() {
                             return (
                                 <tr key={(index + 1)}>
                                     <th scope="row">{(index + 1) + page}</th>
-                                    <td>{pokemon.name}</td>
+                                    <td className="capitalize" >{pokemon.name}</td>
                                     <td>{pokemon.url}</td>
                                     <td>
-                                        <FontAwesomeIcon icon={faSearch} />
-                                        <FontAwesomeIcon icon={faEdit} />
-                                        <FontAwesomeIcon icon={faTrash} />
+                                        <IconButton color="primary" size="small" onClick={e => setState({ showModal: !state.showModal, selectedPokemon: pokemon })} >
+                                            <SearchTwoToneIcon />
+                                        </IconButton>
+                                        <IconButton color="primary" disabled size="small">
+                                            <EditTwoToneIcon />
+                                        </IconButton>
+                                        <IconButton color="secondary" disabled size="small">
+                                            <DeleteTwoToneIcon />
+                                        </IconButton>
                                     </td>
                                 </tr>
                             );
@@ -80,8 +109,37 @@ function PokemonList() {
                     <Link to="/" onClick={e => nextPage()} className="pagination-next">Próxima Página</Link>
                 </nav>
             </div>
-        </div>
+            {
+                state.showModal ? (
+                    < Modal >
+                        <Card className={classes.root}>
+                            <CardActionArea>
+                                <CardMedia
+                                    className={classes.media}
+                                    image="/teste"
+                                    title={state.selectedPokemon.name}
+                                />
+                                <CardContent>
+                                    <Typography gutterBottom variant="h5" component="h2" className="capitalize" >
+                                        {`#${state.selectedPokemon.id} - ${state.selectedPokemon.name}`}
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" component="p">
+                                        Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
+                                        across all continents except Antarctica
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
+                            <CardActions>
+                                <Button onClick={e => setState({ showModal: !state.showModal, selectedPokemon: {} })} size="small" color="primary">
+                                    Fechar
+                                </Button>
+                            </CardActions>
+                        </Card>
+                    </Modal>
+                ) : null
+            }
+        </div >
     );
-}
+};
 
 export default PokemonList;
